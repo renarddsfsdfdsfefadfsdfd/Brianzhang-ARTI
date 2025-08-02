@@ -1,6 +1,6 @@
 ## 项目背景
 本工具集由暨南大学环境学院广东省环境污染与健康重点实验室、水生态风险管理与评价课题组张耀霖开发，用于从Web of Science(WOS)数据库导出的文献数据中提取DOI、下载文献全文及分析文献摘要中的关键词信息。
-Reference:Y.L ZHANG.2025. Brianzhang-ARTI [Repository]. GitHub. https://github.com/renarddsfsdfdsfsefadfsdfd/Brianzhang-ARTI
+Reference: Y.L ZHANG.2025. Brianzhang-ARTI [Repository]. GitHub. https://github.com/renarddsfsdfdsfsefadfsdfd/Brianzhang-ARTI
 
 ## 数据准备
 1. **获取WOS文献数据**：
@@ -95,3 +95,82 @@ Reference:Y.L ZHANG.2025. Brianzhang-ARTI [Repository]. GitHub. https://github.c
 项目负责人：张耀霖（暨南大学环境学院）
 所属机构：广东省环境污染与健康重点实验室
 ![image](https://github.com/renarddsfsdfdsfefadfsdfd/Brianzhang-ARTI/blob/main/%E6%B5%81%E7%A8%8B%E5%9B%BE%E7%A4%BA%E6%84%8F.jpg)
+# 项目流程与原理说明  
+
+本项目围绕特定文档（以含 p-phenylenediamine 等信息的数据处理为背景）的识别、分类与校验展开，核心流程及数学逻辑如下：  
+
+
+## 1. 数据筛选与基础统计（以 WOS 数据为例）  
+### 筛选逻辑  
+针对标识为 `WOS (TS=p-phenylenediamine)` 的数据集（总样本量 \( n = 6360 \) ），通过 `DOIE` 工具，依据 `RegExp` 规则筛选出**可打印（`printable`）**且符合 `Html` 格式的数据。  
+
+
+### 提取率计算  
+有效提取率通过以下公式计算：  
+$$
+\pi_f^p = \frac{N_T - N_t^+}{N_T} \times 100\%
+$$  
+其中：  
+- \( N_T \)：初始总样本量（本项目中 \( N_T = 6360 \) ）  
+- \( N_t^+ \)：未通过提取规则的样本量  
+
+经计算，最终筛选出可提取数据 \( n = 5338 \)，提取率为：  
+$$
+\pi_f^p \approx \frac{6360 - (6360 - 5338)}{6360} \times 100\% \approx 16.1\%
+$$  
+
+筛选后的数据进入**归档（`Archive`）**环节。  
+
+
+## 2. 内部标签校验（Information internal label check）  
+### 校验逻辑Ⅰ  
+对归档数据，首先通过以下步骤计算与校验：  
+
+#### 1. 均值排序公式  
+按文档列统计均值并排序，公式表示为：  
+$$
+\pi_i^a = \text{sort}\left\{ \bar{d}_i \right\}, \quad \text{其中} \quad \bar{d}_i = \frac{m(\text{col}, \text{doc})}{N}
+$$  
+- \( \bar{d}_i \)：某列（`col`）在文档（`doc`）中的均值，\( m(\text{col}, \text{doc}) \) 为列数据总和，\( N \) 为样本量  
+- \( \text{sort}\{ \bar{d}_i \} \)：对所有列的均值结果排序  
+
+
+#### 2. 多轮校验与残余误差  
+结合**可视化工具（`visuaklzMy`）**与**人工校验（分 \( \pi_s^a、\pi_s^b、\pi_s^c \) 多轮）**，总校验指标为：  
+$$
+\sum \pi_i^a = \pi_s^a + \pi_s^b + \pi_s^c
+$$  
+
+通过以下公式计算**残余误差**，验证数据一致性：  
+$$
+\pi_r^a = \frac{\pi_f^p - \sum \pi_i^a}{\pi_f^p}
+$$  
+
+本项目中计算得 \( \pi_r^a \approx 0.004 \)（即 \( 0.4\% \) ），满足 \( 0.004 < 0.005 \)（基础误差阈值 5‰ 内）。  
+
+
+## 3. 文档处理与结果校验（以 PDF 处理为例）  
+### 流程说明  
+通过 `NERRE.py` 输出多维度结论（如 `PPD - o(\ln)、wost - a(\ln_2)` 等 ），再经：  
+- `OCR11.py`（非摘要渲染器，处理文本识别 ）  
+- `Find.py`（提取工具，定位关键内容 ）  
+
+对全量 PDF 执行处理。  
+
+
+### 结果校验公式  
+利用以下公式对比**机器识别结果（`Mresult`）**与**标准结果（`Mposuit`）**的差异：  
+$$
+\pi_i^b = \frac{|\text{Mresult} - \text{Mposuit}|}{\min(n)}
+$$  
+
+最终校验后的数据（含 `PPD*、Scat*` 等类型 ），支持通过 `Nona Power` 下载，用于**精度（`Correc (Accuracy)`）验证**。  
+
+
+## 核心逻辑总结  
+项目通过 **“数据筛选 → 多轮校验 → 公式化误差控制”** 流程，实现文档从原始数据到可用结果的流转。核心公式（如提取率 \( \pi_f^p \)、残余误差 \( \pi_r^a \)、结果校验 \( \pi_i^b \) ）保障了：  
+- 提取环节的量化统计  
+- 校验环节的误差管控  
+- 结果环节的精度验证  
+
+为数据质量与处理逻辑提供**数学可追溯性**与**量化支撑**。  
