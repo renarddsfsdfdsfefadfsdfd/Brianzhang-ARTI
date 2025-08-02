@@ -1,5 +1,6 @@
 ## 项目背景
 本工具集由暨南大学环境学院广东省环境污染与健康重点实验室、水生态风险管理与评价课题组张耀霖开发，用于从Web of Science(WOS)数据库导出的文献数据中提取DOI、下载文献全文及分析文献摘要中的关键词信息。
+Reference:Y.L ZHANG.2025. Brianzhang-ARTI [Repository]. GitHub. https://github.com/renarddsfsdfdsfsefadfsdfd/Brianzhang-ARTI
 
 ## 数据准备
 1. **获取WOS文献数据**：
