@@ -1,0 +1,85 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>文献关键词分析报告</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .header { text-align: center; padding: 20px; background-color: #f0f8ff; }
+            .section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+            .section-title { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+            .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+            .stat-card { background-color: #f9f9f9; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            .stat-value { font-size: 24px; font-weight: bold; color: #2980b9; }
+            .stat-label { font-size: 14px; color: #7f8c8d; }
+            .image-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+            .image-container { text-align: center; }
+            .image-container img { max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; }
+            .download-links { margin: 20px 0; }
+            .download-links a { display: inline-block; margin-right: 15px; padding: 10px 15px; background-color: #3498db; color: white; text-decoration: none; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>文献关键词分析报告</h1>
+                <p>生成时间: 2025-08-02 16:52:05</p>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">分析概览</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">1000</div>
+                        <div class="stat-label">总文献数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">649</div>
+                        <div class="stat-label">包含PPD的文献</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">22</div>
+                        <div class="stat-label">包含沉积物的文献</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">231</div>
+                        <div class="stat-label">包含水体的文献</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">关键词信号分布</h2>
+                <div class="image-grid">
+                    <div class="image-container">
+                        <img src="keyword_signals.png" alt="关键词信号分布图">
+                        <p>图1: 文献关键词信号分布图</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">关键词出现次数统计</h2>
+                <div class="image-grid">
+                    <div class="image-container">
+                        <img src="keyword_summary.png" alt="关键词出现次数统计图">
+                        <p>图2: 关键词出现次数统计图</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">下载结果</h2>
+                <div class="download-links">
+                    <a href="literature_analysis_20250802_165200.csv">下载CSV数据</a>
+                    <a href="keyword_signals.png">下载信号分布图</a>
+                    <a href="keyword_summary.png">下载统计图</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    
