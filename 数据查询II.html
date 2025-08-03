@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文献挖掘：数据参考库</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .institution {
+            color: #666;
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+        .developer {
+            color: #666;
+            font-size: 1em;
+        }
+        .navbar {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+        label {
+            display: block;
+            color: white;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: none;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .table-container {
+            overflow-x: auto;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .stat-item {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>文献挖掘：数据参考库</h1>
+        <div class="institution">暨南大学环境与气候学院广东省环境污染与健康重点实验室</div>
+        <div class="developer">开发者：张耀霖</div>
+    </div>
+
+    <div class="navbar">
+        <div class="filter-group">
+            <div class="filter-item">
+                <label for="dataType">数据类型</label>
+                <select id="dataType">
+                    <option value="">全部</option>
+                    <option value="沉积物浓度">沉积物浓度</option>
+                    <option value="生物浓度">生物浓度</option>
+                    <option value="水体浓度">水体浓度</option>
+                    <option value="粉尘浓度">粉尘浓度</option>
+                    <option value="土壤浓度">土壤浓度</option>
+                    <option value="大气颗粒物浓度">大气颗粒物浓度</option>
+                    <option value="毒性数据">毒性数据</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="compound">化合物</label>
+                <select id="compound">
+                    <option value="">全部</option>
+                    <option value="DPA">DPA</option>
+                    <option value="DBDPA">DBDPA</option>
+                    <option value="DODPA">DODPA</option>
+                    <option value="BDPA">BDPA</option>
+                    <option value="diAMS">diAMS</option>
+                    <option value="6PPD">6PPD</option>
+                    <option value="6PPD-Q">6PPD-Q</option>
+                    <option value="ODPA">ODPA</option>
+                    <option value="SDPAs">SDPAs</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="medium">环境介质</label>
+                <select id="medium">
+                    <option value="">全部</option>
+                    <option value="沉积物">沉积物</option>
+                    <option value="水体">水体</option>
+                    <option value="鱼类">鱼类</option>
+                    <option value="哺乳动物">哺乳动物</option>
+                    <option value="粉尘">粉尘</option>
+                    <option value="土壤">土壤</option>
+                    <option value="大气颗粒物">大气颗粒物</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="dataSource">数据来源类型</label>
+                <select id="dataSource">
+                    <option value="">全部</option>
+                    <option value="野外获取的数据">野外获取的数据</option>
+                    <option value="实验室数据">实验室数据</option>
+                    <option value="模型估算数据">模型估算数据</option>
+                    <option value="实验计算数据">实验计算数据</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn" onclick="filterTable()">检索</button>
+        <button class="btn" onclick="resetFilter()">显示全部</button>
+    </div>
+
+    <div class="table-container">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>数据类型</th>
+                    <th>化合物</th>
+                    <th>环境介质</th>
+                    <th>浓度数据</th>
+                    <th>数据来源类型</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 数据行将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        <div class="stats">
+            <div class="stat-item">
+                <h3>数据来源统计</h3>
+                <p>野外获取的数据：<span id="fieldCount">0</span></p>
+                <p>实验室数据：<span id="labCount">0</span></p>
+                <p>模型估算数据：<span id="modelCount">0</span></p>
+                <p>实验计算数据：<span id="expCount">0</span></p>
+            </div>
+            <div class="stat-item">
+                <h3>国家/地区分布</h3>
+                <p>涉及国家/地区数量：<span id="countryCount">0</span></p>
+                <p>主要国家：中国、加拿大、美国、德国、澳大利亚、日本</p>
+            </div>
+            <div class="stat-item">
+                <h3>数据总量</h3>
+                <p>总记录数：<span id="totalCount">0</span></p>
+            </div>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="exportData()">导出数据</button>
+    </div>
+
+    <script>
+        // 从database.pdf提取的完整数据
+        const data = [
+            // 沉积物浓度数据
+            {dataType: "沉积物浓度", compound: "DPA、DBDPA、DODPA、DPPD等17种", medium: "加拿大安大略省沉积物", concentration: "总浓度高达1000 ng/g 干重 (dw)", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "diAMS、DODPA、DNDPA", medium: "加拿大某城市受影响溪流沉积物", concentration: "diAMS下游均值98.4 ng/g dw，上游1.77 BDPA", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "BDPA、DODPA、DPA", medium: "芝加哥卫生和船舶运河沉积物", concentration: "DODPA、DPA在>80%样品中被检测到，10种AAO化合物总浓度中位数", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "PPDs、PPD-Qs", medium: "中国珠江三角洲、长江三角洲、南海沿岸及深海沉积物", concentration: "河流: PPDs median 39.7 ng/g，PPD-Qs median 15.2 ng/g；河口: PPDs 14.0 ng/g，PPD-Qs 5.85 ng/g", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "6PPD、6PPD-Q", medium: "中国香港roadside土壤", concentration: "6PPD median 309 ng/g；6PPD-Q median 234 ng/g", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "∑TATPs", medium: "珠江口沉积物", concentration: "58.4 ng/g，干季4-HDPA最高24.6 ng/g，湿季DPPD最高17.1 ng/g", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "防护添加剂", medium: "珠江口沉积物", concentration: "占比37.1-50.2%，检出率100%的包括6PPD、CPPD、DNP等", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "∑TATPs", medium: "中国五大湖区湖泊沉积物", concentration: "1355 ng/g，云南-贵州高原(YGP)最高(均值164 ng/g)", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "4-OH-PPD", medium: "湖泊沉积物", concentration: "检出率90%，浓度<0.92-395 ng/g，中位数14 ng/g，为主要污染物", source: "野外获取的数据"},
+            {dataType: "沉积物浓度", compound: "PPDs(6PPD、DPPD等)", medium: "湖泊沉积物", concentration: "6PPD检出率96%(<0.045-2 ng/g)", source: "野外获取的数据"},
+            
+            // 生物浓度数据
+            {dataType: "生物浓度", compound: "8种SDPAs(如BDPA、DBDPA等)", medium: "加拿大安大略省底栖小龙虾", concentration: "平均水平1030 ng/g脂重，主要同系物为diAMS", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs(主要为ODPA)", medium: "加拿大汉密尔顿港和约瑟夫湖拟鳄龟血浆", concentration: "总负担分别为94和109 pg/g湿重(ww)", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "多种SDPAs", medium: "美国圣劳伦斯河北方狗鱼血浆", concentration: "8种SDPAs水平从低于定量限到5270 pg/g", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs(如diAMS等)", medium: "加拿大安大略省白亚口鱼匀浆", concentration: "diAMS浓度为375-1510 pg/g ww", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs", medium: "加拿大安大略省7种鱼类血浆", concentration: "中位数总量从棕色牛头鱼的79 pg/g ww到岩鲈的270 pg/g ww", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "8种SDPAs和C8-MS", medium: "安大略省城市下游浮游鱼类(角头雅罗鱼和银闪雅罗鱼)", concentration: "含有高浓度的8种SDPAs和C8-MS", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs", medium: "加拿大城市溪流白亚口鱼肝脏", concentration: "肝脏中SDPA浓度高于carcass homogenate、胆汁", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs", medium: "苏必利尔湖湖鳟食物链", concentration: "存在显著的生物稀释现象", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "DODPA、DPA、ODPA、C8-MS等", medium: "鳗鱼体内", concentration: "大量积累，并发生母体到性腺和卵中转移", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "ODPA、diAMS", medium: "德国鳗鱼", concentration: "ODPA为50-72 pg/g ww，diAMS <MLOQ-52 pg/g", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "PANA、DODPA", medium: "圣劳伦斯河口白鲸脂肪和肝脏", concentration: "浓度高达536 ng/g ww，DODPA浓度高达115 ng/g ww", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "8种SDPAs", medium: "美国查尔斯顿港宽吻海豚血浆", concentration: "diAMS为主要同系物", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "4种SDPAs(BDPA、DBDPA、DODPA、diAMS)", medium: "北极地区海豹肝脏", concentration: "最高值分别为108、64、39和279 pg/g", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "ODPA、DODPA、BODPA、NDPA、DNDP", medium: "五大湖周围7个筑巢区银鸥蛋", concentration: "检测频率均大于80%", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs", medium: "加拿大汉密尔顿港和约瑟夫湖双冠鸬鹚血浆", concentration: "8种化合物的中位数分别为25和12 pg/g", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "SDPAs多种烷基化衍生物", medium: "加拿大高北极和亚北极地区海鸟(三趾鸥和暴风鹱)", concentration: "检测到SDPAs，表明可远距离迁移并在生物体内积累", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "PPDs、6PPD-Q", medium: "河口食物网生物(虾、海参、蜗牛、鱼类)", concentration: "PPDs平均0.15-42 ng/g ww(DPPD为主)；6PPD-Q 0.17- ng/g ww", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD、6PPD-Q", medium: "小鼠肝脏、脂肪、多器官", concentration: "肝脏剂量依赖性积累；脂肪: 262±31.4 ng/g", source: "实验室数据"},
+            {dataType: "生物浓度", compound: "6PPD、6PPD-Q", medium: "中国南方人群尿液", concentration: "孕妇: 6PPD 0.068 ng/mL，6PPD-Q 2.91 ng/mL；成人: 6PPD 0.018 ng/mL，6PPD-Q 0.40 ng/mL", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD、IPPD等", medium: "中国衢州人群尿液", concentration: "6PPD mean 1.2 ng/mL；CPPD mean 0.85 ng/mL", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD-Q", medium: "人类血清", concentration: "健康人群: 0.13 ng/mL；S-NAFLD人群: 0.20 ng/mL", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD-Q", medium: "帕金森患者与健康人脑脊液", concentration: "患者: 11.08 ng/mL；健康人: 5.07 ng/mL", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD、IPPD", medium: "人类母乳", concentration: "6PPD median 4.10 pg/mL(检出率52%)", source: "野外获取的数据"},
+            {dataType: "生物浓度", compound: "6PPD-quinone", medium: "鱼类", concentration: "0.05 ng/g", source: "野外获取的数据"},
+            
+            // 水体浓度数据
+            {dataType: "水体浓度", compound: "烷基化DPA衍生物(除NDPA、DNDPA、diAMS)", medium: "加拿大安大略省南部城市溪流", concentration: "检测频率小于25%", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "NDPA、DNDPA、diAMS", medium: "加拿大安大略省南部城市溪流", concentration: "检测频率均大于67%，城市化区域下游diAMS水平高", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "ODPA、BDPA、BODPA", medium: "中国松花江地表水", concentration: "ODPA高达0.49 ng/L，BDPA高达0.50 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "5种PPD-Qs(IPPD-Q、DPPD-Q、CPPD-Q、6PPD-Q、DTPD-Q)", medium: "中国香港径流水", concentration: "中位数为2.17 μg/L，高于其母体化合物(0.24 μg/L)，6PPD-Q为主", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "寒冷气候城市雨水和融雪水", concentration: "分别为593和367 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "多伦多和旧金山河流水样", concentration: "数据与加拿大寒冷气候城市雨水和融雪水数据相似", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "美国西雅图和洛杉矶城市径流", concentration: "范围: 800-19,000 ng/L；洛杉矶4100-6100 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q、DPA", medium: "加拿大南部污水处理厂进水和出水(融雪后、降雨后、干旱天气)", concentration: "6PPD-Q浓度低于检测限，融雪和降雨时进水样本中位数为7.43 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "多种SDPAs(如DNDPA、NDPA)", medium: "加拿大污水处理厂进水和出水", concentration: "出水样本为0.73，总量范围从10.2到713 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "SDPAs", medium: "中国松花江污水样本进水和出水", concentration: "范围从1.0到610 ng/L，DODPA为主；相对于进水，SDPAs减少了57.9-84.2%", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "美国西海岸西雅图、洛杉矶道路径流", concentration: "西雅图: <0.3-19.1 μg/L；洛杉矶: 野外获取的数据", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "5种PPDs、PPD-Qs", medium: "中国香港道路径流", concentration: "PPDs: 40-3000 ng/L(median:240 ng/L)；PPD-Qs:740-3870 ng/L(median:2170 ng/L)", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "加拿大安大略省Don河、Highland Creek", concentration: "最高0.72±0.26 μg/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "降雨期澳大利亚支流暴雨期水体", concentration: "最高88 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "加拿大雨水、融雪", concentration: "雨水:86-1400 ng/L；融雪:15-756 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-Q", medium: "中国广州污水处理厂进出水", concentration: "进水69.8 ng/L；出水2.09 ng/L，去除效率85.3%", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD", medium: "香港城市径流", concentration: "210-2710 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "香港城市径流", concentration: "210-2430 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "加拿大萨斯卡通暴雨径流", concentration: "86-1400 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "加拿大萨斯卡通融雪水", concentration: "2019年74-756 ng/L，2020年15-172 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "加拿大多伦多地区Don河地表水", concentration: "300-2300 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "加拿大多伦多地区Highland Creek", concentration: "<LOD-720 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "澳大利亚布里斯班河地表水", concentration: "0.38-88 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD", medium: "德国莱比锡污水处理厂进出水", concentration: "300-4400 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "德国莱比锡污水处理厂进水", concentration: "融雪期均值105 ng/L，降雨期均值52 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "城市径流(KES3)", concentration: "0.05 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "6PPD-quinone", medium: "地表水(KES4)", concentration: "0.09-0.160 ng/L(推测单位)", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "IPPD、6PPD-Q", medium: "中国流溪河附近地下水", concentration: "IPPD mean 1.33 ng/L；6PPD-Q mean 0.13 ng/L", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "PPDs、PPD-Qs", medium: "中国河南城市新鲜大气降雪融水", concentration: "PPDs: 12-2511 pg/mL；PPD-Qs: 0.8-1098 pg/mL", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "∑TATPs", medium: "珠江口表层水、底层水", concentration: "湿季浓度显著高于干季，2-OH-BTH占比55.7%(15.8-90.3%)", source: "野外获取的数据"},
+            {dataType: "水体浓度", compound: "2-OH-BTH、BTH、6PPD-Q、∑TATPs", medium: "珠江口水体", concentration: "2-OH-BTH最高1676 ng/L；BTH占比25.7%(4.8-52.1%)，0.11-16.3 ng/L，检出率100%", source: "野外获取的数据"},
+            
+            // 粉尘、土壤、大气颗粒物浓度数据
+            {dataType: "粉尘浓度", compound: "6PPD", medium: "东京道路粉尘", concentration: "1175 ng/g <0.11– ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD", medium: "广州道路粉尘", concentration: "429 ng/g、15.1–1508 ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD-quinone", medium: "东京道路粉尘", concentration: "中位数809 ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD", medium: "广州室内外粉尘", concentration: "房屋粉尘中位数0.3 ng/g，停车场粉尘中位数241 ng/g，道路粉尘中位数52.5 ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD", medium: "外橡胶操场粉尘", concentration: "几何均值30.4 ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD", medium: "北京室内客厅粉尘", concentration: "几何均值16.4 ng/g", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD-quinone", medium: "广州室内粉尘(车辆、卧室等)", concentration: "0.62–106 ng/L，检出率100%", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "∑21AAs(含6PPD、6PPD-quinone等)", medium: "中国南方电子废弃物回收厂粉尘", concentration: "电缆、电线和电子塑料处理厂浓度高于一般电子废弃物", source: "野外获取的数据"},
+            {dataType: "粉尘浓度", compound: "6PPD-quinone", medium: "道路灰尘(KES2)", concentration: "0.24–0.37 ng/g", source: "野外获取的数据"},
+            {dataType: "土壤浓度", compound: "6PPD", medium: "香港路边土壤", concentration: "31.4–831 ng/g", source: "野外获取的数据"},
+            {dataType: "土壤浓度", compound: "6PPD-quinone", medium: "香港路边土壤", concentration: "9.50–936 ng/g", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD", medium: "中国六大城市PM₂.₅", concentration: "0.02–487 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD-quinone", medium: "中国六大城市PM₂.₅", concentration: "0.1–84 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD", medium: "香港PM₂.₅", concentration: "均值1.78 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD-quinone", medium: "香港PM₂.₅", concentration: "均值1.18 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD-quinone", medium: "广州废物回收厂PM₁₀", concentration: "0.16–39.2 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD", medium: "广州和太原PM₂.₅", concentration: "1.02–9340 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD-quinone", medium: "太原PM₂.₅", concentration: "7250 pg/m³", source: "野外获取的数据"},
+            {dataType: "大气颗粒物浓度", compound: "6PPD-quinone", medium: "积(KES1)", concentration: "0.03–1.0 pg/m³", source: "野外获取的数据"},
+            
+            // 毒性数据
+            {dataType: "毒性数据", compound: "6PPD-quinone", medium: "银鲑(Salvelinus leucomaenis Pluvius)", concentration: "24小时半数致死浓度(LC₅₀)510 ng/L", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD-quinone", medium: "虹鳟(Oncorhynchus mykiss)", concentration: "24小时LC₅₀ 590 ng/L", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD-quinone", medium: "溪鳟(Salvelinus fontinalis)", concentration: "72小时LC₅₀ 1000 ng/L", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼幼体", concentration: "10 μg/L、100 μg/L，沉积量显著减少，高浓度组抑制效果更明显", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼幼体", concentration: "100 μg/L，酪氨酸酶活性及含量显著降低", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼幼体", concentration: "10 μg/L、100 μg/L，促黑色素细胞激素(α-MSH)含量显著变化", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼幼体", concentration: "10 μg/L、100 μg/L，合成相关基因(tyr、trp1、dct、mitfa、trp2)表达变化", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼幼体", concentration: "100 μg/L，20分钟自由游泳距离、平均速度显著降低", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "斑马鱼酪氨酸酶相关蛋白(Dct、Tyr、Tyrp1a、Tyrp1b)", concentration: "无具体浓度，与Dct结合能-16.90 kcal/mol，与Tyr结合能-9.26 kcal/mol", source: "实验室数据(分子对接)"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "小鼠黑色素瘤B16F10细胞", concentration: "5 mg/L时细胞活性显著下降，IC₅₀=9.155 mg/L", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "小鼠黑色素瘤B16F10细胞", concentration: "0.5 mg/L、2.5 mg/L，黑色素合成减少，高浓度组抑制率达12%", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "小鼠黑色素瘤B16F10细胞", concentration: "2.5 mg/L，合成相关基因(Trp1、Trp2、tyr、Rab27a、mitfa)mRNA表达量下降", source: "实验室数据"},
+            {dataType: "毒性数据", compound: "6PPD", medium: "小鼠黑色素瘤B16F10细胞", concentration: "2.5 mg/L，Mitfa蛋白表达显著抑制，Tyr蛋白表达呈下降", source: "实验室数据"},
+            
+            // 其他数据
+            {dataType: "SPM浓度", compound: "HMMM、BTH", medium: "珠江口SPM", concentration: "HMMM占比39.6%(2.42-89.8%)，最高2315 ng/g；BTH占比33.5%(0-89.7%)", source: "野外获取的数据"},
+            {dataType: "质量清单", compound: "∑TATPs", medium: "珠江口水体、SPM、沉积物", concentration: "水体:1460-8568 kg；SPM:376-382 kg；沉积物:827-923 kg，湿季水体更高", source: "模型估算数据"},
+            {dataType: "分配系数", compound: "Log K_p(水-SPM)", medium: "珠江口", concentration: "干季2.59-6.93，湿季0.80-7.40，与Log MW正相关(r=0.53)", source: "实验计算数据"},
+            {dataType: "分配系数", compound: "Log K_d(水-沉积物)", medium: "珠江口", concentration: "干季0.74-5.29，湿季-0.15-5.38，与Log K_ow、Log MW正相关", source: "实验计算数据"},
+            {dataType: "生物累积因子", compound: "6PPD-quinone", medium: "鱼类", concentration: "log生物累积因子1.3–1.9", source: "野外获取的数据"},
+            {dataType: "分配系数(log KOC)", compound: "6PPD-quinone", medium: "道路灰尘", concentration: "灰尘3.2，居民区道路", source: "实验计算数据"},
+            {dataType: "分配系数(Kd)", compound: "6PPD-quinone", medium: "地表水悬浮颗粒物", concentration: "0.029", source: "实验计算数据"},
+            {dataType: "理化性质", compound: "6PPD-quinone", medium: "—", concentration: "log Kow 4.3，极性表面积24.05", source: "实验分析数据"}
+        ];
+
+        // 页面加载时初始化表格
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable(data);
+            updateStatistics(data);
+        });
+
+        // 渲染表格数据
+        function renderTable(data) {
+            const tableBody = document.querySelector('#dataTable tbody');
+            tableBody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.dataType}</td>
+                    <td>${item.compound}</td>
+                    <td>${item.medium}</td>
+                    <td>${item.concentration}</td>
+                    <td>${item.source}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 过滤表格数据
+        function filterTable() {
+            const dataType = document.getElementById('dataType').value;
+            const compound = document.getElementById('compound').value;
+            const medium = document.getElementById('medium').value;
+            const dataSource = document.getElementById('dataSource').value;
+            
+            const filteredData = data.filter(item => {
+                const typeMatch = !dataType || item.dataType === dataType;
+                const compoundMatch = !compound || item.compound.includes(compound);
+                const mediumMatch = !medium || item.medium.includes(medium);
+                const sourceMatch = !dataSource || item.source === dataSource;
+                
+                return typeMatch && compoundMatch && mediumMatch && sourceMatch;
+            });
+            
+            renderTable(filteredData);
+            updateStatistics(filteredData);
+        }
+
+        // 重置过滤器
+        function resetFilter() {
+            document.getElementById('dataType').value = '';
+            document.getElementById('compound').value = '';
+            document.getElementById('medium').value = '';
+            document.getElementById('dataSource').value = '';
+            
+            renderTable(data);
+            updateStatistics(data);
+        }
+
+        // 更新统计信息
+        function updateStatistics(data) {
+            // 数据来源统计
+            const fieldCount = data.filter(item => item.source === "野外获取的数据").length;
+            const labCount = data.filter(item => item.source === "实验室数据").length;
+            const modelCount = data.filter(item => item.source === "模型估算数据").length;
+            const expCount = data.filter(item => item.source === "实验计算数据").length;
+            
+            document.getElementById('fieldCount').textContent = fieldCount;
+            document.getElementById('labCount').textContent = labCount;
+            document.getElementById('modelCount').textContent = modelCount;
+            document.getElementById('expCount').textContent = expCount;
+            
+            // 国家/地区统计（从介质中提取国家）
+            const countries = new Set();
+            const countryKeywords = {
+                "中国": ["中国", "珠江口", "松花江", "香港", "广州", "北京", "河南", "衢州"],
+                "加拿大": ["加拿大", "安大略省", "多伦多", "萨斯卡通"],
+                "美国": ["美国", "芝加哥", "西雅图", "洛杉矶", "查尔斯顿港", "圣劳伦斯河"],
+                "德国": ["德国", "莱比锡"],
+                "澳大利亚": ["澳大利亚", "布里斯班河"],
+                "日本": ["日本", "东京"]
+            };
+            
+            data.forEach(item => {
+                Object.keys(countryKeywords).forEach(country => {
+                    if (countryKeywords[country].some(keyword => item.medium.includes(keyword))) {
+                        countries.add(country);
+                    }
+                });
+            });
+            
+            document.getElementById('countryCount').textContent = countries.size;
+            
+            // 总记录数
+            document.getElementById('totalCount').textContent = data.length;
+        }
+
+        // 导出数据功能
+        function exportData() {
+            alert('数据导出功能已触发，实际应用中可实现CSV导出等功能');
+            // 实际项目中可在此处实现数据导出为CSV等格式
+        }
+    </script>
+</body>
+</html>
